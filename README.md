@@ -1,4 +1,4 @@
-# `@veedcrawl/mcp`
+# `Veedcrawl MCP Server`
 
 Official VEEDCRAWL MCP server for transcript, metadata, and AI extraction tools.
 
