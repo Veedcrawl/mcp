@@ -1,4 +1,4 @@
-# `@veedcrawl/mcp`
+# `Veedcrawl MCP Server`
 
 Official VEEDCRAWL MCP server for transcript, metadata, and AI extraction tools.
 
@@ -19,14 +19,6 @@ Compatibility aliases:
 
 - `X_API_KEY`
 
-## Local Development
-
-```bash
-pnpm install
-pnpm build
-VEEDCRAWL_API_KEY=ma_your_key_here node ./dist/index.js
-```
-
 ## Cursor
 
 Clone the repo, build it once, then point Cursor at the built entrypoint:
@@ -45,32 +37,8 @@ Clone the repo, build it once, then point Cursor at the built entrypoint:
 }
 ```
 
-If you want Cursor to use a local VEEDCRAWL API instead of production:
-
-```json
-{
-  "mcpServers": {
-    "veedcrawl": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp/dist/index.js"],
-      "env": {
-        "VEEDCRAWL_API_KEY": "ma_your_key_here",
-        "VEEDCRAWL_BASE_URL": "http://localhost:3000"
-      }
-    }
-  }
-}
-```
-
 ## Claude Code
 
 ```bash
 claude mcp add veedcrawl -- env VEEDCRAWL_API_KEY=ma_your_key_here node /absolute/path/to/mcp/dist/index.js
-```
-
-## Publish
-
-```bash
-pnpm build
-npm publish --access public
 ```
