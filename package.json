@@ -1,6 +1,6 @@
 {
   "name": "@veedcrawl/mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Official VEEDCRAWL MCP server for transcript, metadata, and AI extraction tools.",
   "type": "module",
   "bin": {
