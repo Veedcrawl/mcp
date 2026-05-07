@@ -21,14 +21,14 @@ Compatibility aliases:
 
 ## Cursor
 
-Clone the repo, build it once, then point Cursor at the built entrypoint:
+Run the published npm package:
 
 ```json
 {
   "mcpServers": {
     "veedcrawl": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "@veedcrawl/mcp"],
       "env": {
         "VEEDCRAWL_API_KEY": "ma_your_key_here"
       }
@@ -40,5 +40,5 @@ Clone the repo, build it once, then point Cursor at the built entrypoint:
 ## Claude Code
 
 ```bash
-claude mcp add veedcrawl -- env VEEDCRAWL_API_KEY=ma_your_key_here node /absolute/path/to/mcp/dist/index.js
+claude mcp add veedcrawl -- env VEEDCRAWL_API_KEY=ma_your_key_here npx -y @veedcrawl/mcp
 ```
