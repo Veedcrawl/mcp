@@ -21,14 +21,20 @@ Compatibility aliases:
 
 ## Cursor
 
-Run the published npm package:
+Install the published package once:
+
+```bash
+npm install -g @veedcrawl/mcp
+```
+
+Then run the installed `veedcrawl-mcp` binary:
 
 ```json
 {
   "mcpServers": {
     "veedcrawl": {
-      "command": "npx",
-      "args": ["-y", "@veedcrawl/mcp"],
+      "command": "veedcrawl-mcp",
+      "args": [],
       "env": {
         "VEEDCRAWL_API_KEY": "ma_your_key_here"
       }
@@ -40,5 +46,6 @@ Run the published npm package:
 ## Claude Code
 
 ```bash
-claude mcp add veedcrawl -- env VEEDCRAWL_API_KEY=ma_your_key_here npx -y @veedcrawl/mcp
+npm install -g @veedcrawl/mcp
+claude mcp add veedcrawl -- env VEEDCRAWL_API_KEY=ma_your_key_here veedcrawl-mcp
 ```
