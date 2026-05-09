@@ -1,7 +1,7 @@
 {
   "name": "@veedcrawl/mcp",
-  "version": "0.1.1",
-  "description": "Official VEEDCRAWL MCP server for transcript, metadata, and AI extraction tools.",
+  "version": "0.1.2",
+  "description": "Official VEEDCRAWL MCP server for video metadata, transcripts, extraction, and social profile tools.",
   "type": "module",
   "bin": {
     "veedcrawl-mcp": "./dist/index.js"
