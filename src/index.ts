@@ -10,6 +10,7 @@ dotenv.config({ quiet: true });
 const DEFAULT_BASE_URL = 'https://api.veedcrawl.com';
 const DEFAULT_POLL_INTERVAL = 1500;
 const DEFAULT_MAX_POLL_ATTEMPTS = 120;
+const PACKAGE_VERSION = '0.1.2';
 
 interface ApiError extends Error {
   status: number;
@@ -33,6 +34,12 @@ interface ExtractOptions {
   prompt: string;
   lang?: string;
   schema?: Record<string, unknown>;
+}
+
+interface ProfileLookupOptions {
+  username?: string;
+  url?: string;
+  limit?: number;
 }
 
 interface JobResponse {
@@ -61,7 +68,7 @@ class VeedcrawlClient {
     this.headers = {
       'x-api-key': config.apiKey,
       'Content-Type': 'application/json',
-      'User-Agent': 'veedcrawl-mcp/0.1.0',
+      'User-Agent': `veedcrawl-mcp/${PACKAGE_VERSION}`,
     };
     this.pollInterval = config.pollInterval ?? DEFAULT_POLL_INTERVAL;
     this.maxPollAttempts = config.maxPollAttempts ?? DEFAULT_MAX_POLL_ATTEMPTS;
@@ -95,6 +102,19 @@ class VeedcrawlClient {
 
   async metadata(url: string): Promise<unknown> {
     return this.request('GET', '/v1/metadata', undefined, { url });
+  }
+
+  async tiktokProfile(options: ProfileLookupOptions): Promise<unknown> {
+    return this.request('GET', '/v1/tiktok/profile', undefined, buildProfileQuery(options));
+  }
+
+  async instagramProfile(options: ProfileLookupOptions): Promise<unknown> {
+    return this.request(
+      'GET',
+      '/v1/instagram/profile',
+      undefined,
+      buildProfileQuery(options),
+    );
   }
 
   async enqueueTranscript(
@@ -222,12 +242,45 @@ function isApiError(err: unknown): err is ApiError {
   return err instanceof Error && 'status' in err && 'code' in err;
 }
 
+function buildProfileQuery(options: ProfileLookupOptions): Record<string, string> {
+  const query: Record<string, string> = {};
+
+  if (options.username) {
+    query['username'] = options.username.trim();
+  }
+
+  if (options.url) {
+    query['url'] = options.url.trim();
+  }
+
+  if (typeof options.limit === 'number') {
+    query['limit'] = String(options.limit);
+  }
+
+  return query;
+}
+
+function resolveProfileLookup(args: ProfileLookupOptions): ProfileLookupOptions {
+  const username = args.username?.trim();
+  const url = args.url?.trim();
+
+  if (!username && !url) {
+    throw new Error('Provide either username or url.');
+  }
+
+  return {
+    ...(username ? { username } : {}),
+    ...(url ? { url } : {}),
+    ...(typeof args.limit === 'number' ? { limit: args.limit } : {}),
+  };
+}
+
 function buildServer(): McpServer {
   const client = createClient();
 
   const server = new McpServer({
     name: 'veedcrawl',
-    version: '0.1.0',
+    version: PACKAGE_VERSION,
   });
 
   server.tool(
@@ -277,6 +330,42 @@ function buildServer(): McpServer {
     async ({ url, prompt, lang, schema }) => {
       try {
         const result = await client.extract(url, { prompt, lang, schema });
+        return { content: [{ type: 'text', text: formatJson(result) }] };
+      } catch (err) {
+        throw toToolError(err);
+      }
+    },
+  );
+
+  server.tool(
+    'get_tiktok_profile',
+    'Fetch a public TikTok profile snapshot with summary stats and recent videos. Provide either a username or a TikTok profile URL.',
+    {
+      username: z.string().min(1).optional().describe('TikTok username, with or without the leading @.'),
+      url: z.string().url().optional().describe('Public TikTok profile URL such as https://www.tiktok.com/@creator.'),
+      limit: z.number().int().min(1).max(24).optional().describe('How many recent videos to return, from 1 to 24.'),
+    },
+    async ({ username, url, limit }) => {
+      try {
+        const result = await client.tiktokProfile(resolveProfileLookup({ username, url, limit }));
+        return { content: [{ type: 'text', text: formatJson(result) }] };
+      } catch (err) {
+        throw toToolError(err);
+      }
+    },
+  );
+
+  server.tool(
+    'get_instagram_profile',
+    'Fetch a public Instagram profile snapshot with summary stats and recent posts. Provide either a username or a public profile URL.',
+    {
+      username: z.string().min(1).optional().describe('Instagram username, with or without the leading @.'),
+      url: z.string().url().optional().describe('Public Instagram profile URL such as https://www.instagram.com/creator/.'),
+      limit: z.number().int().min(1).max(24).optional().describe('How many recent posts to return, from 1 to 24.'),
+    },
+    async ({ username, url, limit }) => {
+      try {
+        const result = await client.instagramProfile(resolveProfileLookup({ username, url, limit }));
         return { content: [{ type: 'text', text: formatJson(result) }] };
       } catch (err) {
         throw toToolError(err);
